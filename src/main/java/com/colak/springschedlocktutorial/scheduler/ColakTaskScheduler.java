@@ -5,6 +5,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -19,8 +20,8 @@ public class ColakTaskScheduler {
 
     // every 1 minutes
     @Scheduled(cron = CRON)
-    @SchedulerLock(name = LOCK_NAME)
-    public void scheduledTask1() throws InterruptedException {
+    @SchedulerLock(name = LOCK_NAME, lockAtLeastFor = "PT15S", lockAtMostFor = "PT30S")
+    public void scheduledTask1() {
         log.info("Executing scheduledTask 1");
         sleepRandom();
     }
@@ -30,6 +31,12 @@ public class ColakTaskScheduler {
     public void scheduledTask2() {
         log.info("Executing scheduledTask 2");
         sleepRandom();
+    }
+
+    @Scheduled(fixedRateString = "15", timeUnit = TimeUnit.SECONDS)
+    @SchedulerLock(name = "RoutineScheduler.scheduledTask", lockAtLeastFor = "PT15S", lockAtMostFor = "PT30S")
+    public void scheduledTask() {
+        log.info("Scheduler open: " + LocalDateTime.now());
     }
 
     @SuppressWarnings("java:S2142")
